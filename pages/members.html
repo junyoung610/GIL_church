@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>길교회 교적부 관리</title>
+    <!-- 공통 스타일과 교적부 전용 스타일 연결 -->
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/members.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1>길교회 교적부 시스템 🔒</h1>
+        <nav>
+          <ul>
+            <li><a href="../index.html">홈페이지로 돌아가기</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container admin-layout">
+      <!-- 좌측 사이드바 메뉴 -->
+      <aside class="sidebar">
+        <h3>관리 메뉴</h3>
+        <ul>
+          <li class="active"><a href="#">전체 교인 목록</a></li>
+          <li><a href="#">새 가족 등록</a></li>
+          <li><a href="#">구역/셀 편성</a></li>
+        </ul>
+      </aside>
+
+      <!-- 우측 메인 콘텐츠 (데이터 표) -->
+      <section class="content">
+        <div class="content-header">
+          <h2>전체 교인 목록</h2>
+          <button class="btn-primary">신규 등록</button>
+        </div>
+
+        <div class="table-container">
+          <table id="membersTable">
+            <thead>
+              <tr>
+                <th>이름</th>
+                <th>직분</th>
+                <th>소속(구역)</th>
+                <th>연락처</th>
+                <th>등록일</th>
+              </tr>
+            </thead>
+            <tbody id="memberData">
+              <!-- 자바스크립트를 통해 이곳에 데이터가 들어옵니다 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- 교적부 전용 자바스크립트 연결 -->
+    <script src="../js/members.js"></script>
+  </body>
+</html>
