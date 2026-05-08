@@ -1,102 +1,121 @@
-// --- 사진 미리보기 기능 (선택된 사진을 동그라미 안에 보여줍니다) ---
+import { auth, db } from "./firebase-config.js";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  doc,
+  setDoc,
+  getDoc,
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// --- 1. 프로필 사진 미리보기 (로컬 UI 전용) ---
 const profilePicInput = document.getElementById("profilePic");
 if (profilePicInput) {
   profilePicInput.addEventListener("change", function (e) {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
+        // 10MB 제한
         alert("파일 크기가 10MB를 초과합니다.");
         this.value = "";
         return;
       }
       const reader = new FileReader();
-      reader.onload = function (e) {
-        document.getElementById("profilePreview").innerHTML =
-          `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+      reader.onload = (e) => {
+        const preview = document.getElementById("profilePreview");
+        if (preview) {
+          preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+        }
       };
       reader.readAsDataURL(file);
     }
   });
 }
 
-// --- 회원가입 로직 ---
+// --- 2. 통합 회원가입 로직 (Firebase Auth + Firestore) ---
 const signupForm = document.getElementById("signupForm");
 if (signupForm) {
-  signupForm.addEventListener("submit", function (e) {
+  signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // 관리자가 설정할 수 있는 기본 상태와 메모
-    const status = "등록";
-    const memo = "";
-    const registerDate = new Date().toISOString().split("T")[0]; // 오늘 날짜 (YYYY-MM-DD)
+    // 필수 인증 정보
+    const email = document.getElementById("signupEmail").value;
+    const password = document.getElementById("signupPassword").value;
+    const name = document.getElementById("signupName").value;
 
-    // 화면에서 입력받은 모든 값 모으기
-    const newUser = {
-      id: document.getElementById("signupId").value,
-      password: document.getElementById("signupPassword").value,
-      name: document.getElementById("signupName").value,
-      gender: document.getElementById("signupGender").value,
-      email: document.getElementById("signupEmail").value,
-      phone: document.getElementById("signupPhone").value,
-      birth: document.getElementById("signupBirth").value,
-      position: document.getElementById("signupPosition").value,
-      group: document.getElementById("signupGroup").value,
-      zipcode: document.getElementById("signupZipcode").value,
-      address: document.getElementById("signupAddress").value,
-      addressDetail: document.getElementById("signupAddressDetail").value,
-      baptismDate: document.getElementById("signupBaptismDate").value,
-      infantBaptismDate: document.getElementById("signupInfantBaptismDate").value,
-      confirmationDate: document.getElementById("signupConfirmationDate").value,
-      status: status,
-      memo: memo,
-      registerDate: registerDate,
-      // 관리자 확인용 (아이디에 admin이 들어가면 관리자 부여)
-      role: document.getElementById("signupId").value.includes("admin") ? "admin" : "member",
-    };
+    try {
+      // 1. Firebase Authentication에 계정 생성
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    let users = JSON.parse(localStorage.getItem("churchUsers")) || [];
+      // 2. 모든 교인 상세 정보를 Firestore 'users' 컬렉션에 저장
+      // (Base64 사진 데이터는 용량 문제로 Firebase Storage 연동 전까지는 생략 권장)
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        id: document.getElementById("signupId").value, // 사용자 지정 ID
+        name: name,
+        gender: document.getElementById("signupGender").value,
+        email: email,
+        phone: document.getElementById("signupPhone").value,
+        birth: document.getElementById("signupBirth").value,
+        position: document.getElementById("signupPosition").value,
+        group: document.getElementById("signupGroup").value,
+        zipcode: document.getElementById("signupZipcode").value,
+        address: document.getElementById("signupAddress").value,
+        addressDetail: document.getElementById("signupAddressDetail").value,
+        baptismDate: document.getElementById("signupBaptismDate").value,
+        infantBaptismDate: document.getElementById("signupInfantBaptismDate").value,
+        confirmationDate: document.getElementById("signupConfirmationDate").value,
+        status: "등록", // 초기 상태 기본값
+        memo: "",
+        registerDate: new Date().toISOString(),
+        role: email.includes("admin") ? "admin" : "member", // 보안 규칙 기반 권한 설정
+      });
 
-    // 아이디 중복 검사
-    if (users.find((user) => user.id === newUser.id)) {
-      alert("이미 사용 중인 아이디입니다!");
-      return;
+      alert(`${name}님, 교적 등록이 완료되었습니다. 로그인을 진행해주세요.`);
+      window.location.href = "login.html";
+    } catch (error) {
+      console.error("회원가입 실패:", error);
+      alert("가입 중 오류가 발생했습니다: " + error.message);
     }
-
-    users.push(newUser);
-    localStorage.setItem("churchUsers", JSON.stringify(users));
-
-    alert(`${newUser.name}님, 환영합니다! 로그인을 진행해주세요.`);
-    window.location.href = "login.html";
   });
 }
 
-// --- 로그인 로직 (아이디 또는 이메일 둘 다 지원) ---
+// --- 3. 통합 로그인 로직 ---
 const loginForm = document.getElementById("loginForm");
 if (loginForm) {
-  loginForm.addEventListener("submit", function (e) {
+  loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // 방금 html에서 수정한 id="loginId" 값을 가져옵니다.
-    const loginInput = document.getElementById("loginId").value;
+    const loginInput = document.getElementById("loginId").value; // ID 또는 이메일
     const password = document.getElementById("loginPassword").value;
 
-    let users = JSON.parse(localStorage.getItem("churchUsers")) || [];
+    try {
+      // Firebase Auth는 기본적으로 이메일 로그인을 지원합니다.
+      // (아이디 로그인을 위해서는 별도의 매핑 처리가 필요하나 우선 이메일 로그인을 권장합니다.)
+      const userCredential = await signInWithEmailAndPassword(auth, loginInput, password);
+      const user = userCredential.user;
 
-    // ⭐️ 핵심: 입력한 값이 '아이디'와 같거나, '이메일'과 같으면 로그인 성공!
-    const user = users.find(
-      (u) => (u.id === loginInput || u.email === loginInput) && u.password === password,
-    );
+      // Firestore에서 저장된 교인 정보 및 권한(role) 가져오기
+      const userDoc = await getDoc(doc(db, "users", user.uid));
 
-    if (user) {
-      localStorage.setItem("currentUser", JSON.stringify(user));
-      alert(`${user.name}님 로그인 되셨습니다.`);
-      if (user.role === "admin") {
-        window.location.href = "members.html";
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+
+        // 세션 유지를 위해 localStorage에 현재 사용자 정보 저장 (UI 표시용)
+        localStorage.setItem("currentUser", JSON.stringify(userData));
+
+        alert(`${userData.name}님, 평안한 하루 되세요.`);
+
+        // 권한에 따른 페이지 이동
+        window.location.href = userData.role === "admin" ? "members.html" : "../index.html";
       } else {
-        window.location.href = "../index.html";
+        throw new Error("교적 정보를 찾을 수 없습니다.");
       }
-    } else {
-      alert("아이디(이메일) 또는 비밀번호가 일치하지 않습니다.");
+    } catch (error) {
+      console.error("로그인 실패:", error);
+      alert("아이디/이메일 또는 비밀번호를 확인해주세요.");
     }
   });
 }
