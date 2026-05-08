@@ -1,0 +1,39 @@
+<nav class="main-nav">
+  <div class="nav-container">
+    <!-- 로고 -->
+    <a href="../index.html" class="logo">길교회</a>
+
+    <!-- PC 및 모바일 공통 메뉴 -->
+    <ul class="nav-menu" id="navMenu">
+      <li class="has-submenu">
+        <a href="#">교회소개</a>
+        <ul class="submenu">
+          <li><a href="#">환영인사</a></li>
+          <li><a href="#">연혁</a></li>
+          <li><a href="#">오시는 길</a></li>
+        </ul>
+      </li>
+      <li class="has-submenu">
+        <a href="#">예배/말씀</a>
+        <ul class="submenu">
+          <li><a href="#">예배안내</a></li>
+          <li><a href="#">주일설교</a></li>
+        </ul>
+      </li>
+      <li><a href="../pages/board_list.html">교회소식</a></li>
+      <li><a href="../pages/members.html">교적부(관리자)</a></li>
+
+      <!-- ⭐️ 자바스크립트가 로그인/로그아웃 상태에 따라 내용을 바꿔치기할 영역 -->
+      <li id="authMenuArea">
+        <a href="#">로그인/회원가입</a>
+      </li>
+    </ul>
+
+    <!-- 모바일용 햄버거 버튼 (PC에서는 숨김) -->
+    <button class="hamburger" id="hamburgerBtn">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+  </div>
+</nav>

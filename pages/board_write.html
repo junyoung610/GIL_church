@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>글쓰기 - 길교회</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      .write-container {
+        max-width: 1000px;
+        margin: 50px auto;
+        padding: 0 20px;
+      }
+      .write-header {
+        border-bottom: 2px solid #1e40af;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+      .write-header h2 {
+        font-size: 1.8rem;
+        color: #1a1a2e;
+      }
+
+      .write-form {
+        background: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #475569;
+      }
+      .input-group input,
+      .input-group select,
+      .input-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .input-group input:focus,
+      .input-group textarea:focus {
+        border-color: #1e40af;
+      }
+
+      .input-group textarea {
+        min-height: 400px;
+        resize: vertical;
+        line-height: 1.6;
+      }
+
+      /* 버튼 영역 */
+      .btn-group {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 40px;
+      }
+      .btn {
+        padding: 12px 40px;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        cursor: pointer;
+        border: none;
+        transition: background 0.2s;
+      }
+      .btn-cancel {
+        background-color: #94a3b8;
+        color: white;
+        text-decoration: none;
+      }
+      .btn-cancel:hover {
+        background-color: #64748b;
+      }
+      .btn-submit {
+        background-color: #1e40af;
+        color: white;
+      }
+      .btn-submit:hover {
+        background-color: #1e3a8a;
+      }
+
+      /* 읽기 전용 스타일 */
+      .readonly-input {
+        background-color: #f1f5f9;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+
+    <main class="write-container">
+      <div class="write-header">
+        <h2 id="writePageTitle">게시글 작성</h2>
+      </div>
+
+      <form class="write-form" id="writeForm">
+        <!-- board_write.html 내 적절한 위치(예: 제목 위)에 추가 -->
+        <div id="bulletinDateGroup" style="display: none; margin-bottom: 20px">
+          <label style="font-weight: bold; color: #1e40af">주보 해당 주일 선택</label>
+          <input
+            type="date"
+            id="postBulletinDate"
+            class="group-select"
+            style="width: 100%; border: 2px solid #1e40af"
+          />
+          <p style="font-size: 0.85rem; color: #64748b; margin-top: 5px">
+            * 해당 주일(일요일) 날짜를 선택해주세요.
+          </p>
+        </div>
+        <!-- 게시판 타입 (숨김 처리 또는 선택) -->
+        <input type="hidden" id="postType" value="notice" />
+
+        <div class="input-group">
+          <label for="postTitle">제목</label>
+          <input type="text" id="postTitle" placeholder="제목을 입력하세요" required />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+          <div class="input-group">
+            <label>작성자</label>
+            <input type="text" id="postAuthor" class="readonly-input" readonly />
+          </div>
+          <div class="input-group">
+            <label>작성일</label>
+            <input type="text" id="postDateDisplay" class="readonly-input" readonly />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="postContent">내용</label>
+          <textarea
+            id="postContent"
+            placeholder="여기에 내용을 입력하세요 (HTML 태그 사용 가능)"
+            required
+          ></textarea>
+        </div>
+
+        <div
+          class="input-group"
+          style="margin-top: 20px; border-top: 1px dashed #cbd5e1; padding-top: 20px"
+        >
+          <label for="postFile">첨부파일 및 이미지</label>
+          <input type="file" id="postFile" class="group-select" style="width: 100%" />
+          <p style="font-size: 0.85rem; color: #64748b; margin-top: 5px">
+            * 이미지(JPG, PNG)나 문서 파일을 첨부할 수 있습니다. (테스트용 작은 파일 권장)
+          </p>
+
+          <div id="filePreview" style="margin-top: 15px; display: none">
+            <p style="font-size: 0.9rem; font-weight: bold; margin-bottom: 5px">
+              선택된 이미지 미리보기:
+            </p>
+            <img
+              id="previewImg"
+              src=""
+              style="max-width: 200px; border-radius: 8px; border: 1px solid #e2e8f0"
+            />
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <a href="board_list.html" class="btn btn-cancel">취소</a>
+          <button type="submit" class="btn btn-submit">등록하기</button>
+        </div>
+      </form>
+    </main>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/board.js"></script>
+  </body>
+</html>

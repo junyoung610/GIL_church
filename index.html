@@ -4,28 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>길교회 홈페이지</title>
-    <!-- 디자인 파일 연결 -->
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
-    <header>
-      <div class="container">
-        <h1>길교회</h1>
-        <nav>
-          <ul>
-            <li><a href="index.html">홈</a></li>
-            <li><a href="#">예배안내</a></li>
-            <li><a href="#">교회소식</a></li>
-            <!-- 추후 만들 교적부 페이지 링크 -->
-            <li><a href="./pages/members.html">교적부 시스템(관리자)</a></li>
-          </ul>
-        </nav>
-      </div>
-    </header>
+    <!-- 자바스크립트가 components/nav.html을 이 자리에 불러옵니다 -->
+    <div id="nav-placeholder"></div>
 
-    <main class="container hero-section">
-      <h2>환영합니다!</h2>
-      <p>이곳은 길교회의 디지털 행정 시스템 및 메인 홈페이지입니다.</p>
+    <!-- 메인 컨텐츠 -->
+    <main>
+      <section class="hero-banner">
+        <div class="container">
+          <h2>길교회에 오신 것을 환영합니다</h2>
+          <p>PC 화면에 최적화된 시원한 레이아웃입니다.</p>
+        </div>
+      </section>
+
+      <section class="content-section container">
+        <h3>최신 소식</h3>
+        <p>이곳에 게시판이나 교회 주요 소식이 배치될 수 있습니다.</p>
+      </section>
     </main>
+
+    <!-- 스크립트 연결 -->
+    <script src="./js/main.js"></script>
   </body>
 </html>

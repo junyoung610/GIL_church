@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>마이페이지 - 길교회</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/auth.css" />
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+
+    <main class="auth-wrapper">
+      <div class="auth-container" style="max-width: 600px">
+        <!-- 넓이 확장 -->
+        <h2 style="border-bottom: 2px solid #1e40af; padding-bottom: 10px">내 정보 수정</h2>
+
+        <form id="mypageForm">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px">
+            <div class="form-group">
+              <label>아이디 (변경불가)</label>
+              <input type="text" id="myId" readonly style="background: #f1f5f9" />
+            </div>
+            <div class="form-group">
+              <label>이름</label>
+              <input type="text" id="myName" required />
+            </div>
+            <div class="form-group">
+              <label>연락처</label>
+              <input type="tel" id="myPhone" required />
+            </div>
+            <div class="form-group">
+              <label>생년월일</label>
+              <input type="date" id="myBirth" />
+            </div>
+            <div class="form-group">
+              <label>직분 (행정실 문의)</label>
+              <input type="text" id="myPosition" readonly style="background: #f1f5f9" />
+            </div>
+            <div class="form-group">
+              <label>소속부서 (행정실 문의)</label>
+              <input type="text" id="myGroup" readonly style="background: #f1f5f9" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>주소</label>
+            <input type="text" id="myAddress" placeholder="전체 주소 입력" style="width: 100%" />
+          </div>
+
+          <div
+            class="form-group"
+            style="margin-top: 20px; border-top: 1px dashed #cbd5e1; padding-top: 20px"
+          >
+            <label style="color: #ef4444">새 비밀번호 (변경할 경우에만 입력)</label>
+            <input
+              type="password"
+              id="myPassword"
+              placeholder="기존 비밀번호를 유지하려면 비워두세요"
+            />
+          </div>
+
+          <button type="submit" class="btn-auth">정보 업데이트</button>
+        </form>
+      </div>
+    </main>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/mypage.js"></script>
+  </body>
+</html>

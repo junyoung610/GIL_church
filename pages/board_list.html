@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>교회소식 - 길교회</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      .board-container {
+        max-width: 1200px;
+        margin: 50px auto;
+        padding: 0 20px;
+        min-height: 700px;
+      }
+      .board-header {
+        border-bottom: 2px solid #1e40af;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      .board-header h2 {
+        font-size: 2rem;
+        color: #1a1a2e;
+      }
+
+      /* 게시판 테이블 스타일 */
+      .board-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        background: #fff;
+      }
+      .board-table th,
+      .board-table td {
+        padding: 18px 15px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: center;
+      }
+      .board-table th {
+        background-color: #f8fafc;
+        font-weight: 600;
+        color: #475569;
+      }
+      .board-table td.title {
+        text-align: left;
+        padding-left: 30px;
+      }
+      .board-table td.title a {
+        text-decoration: none;
+        color: #334155;
+        transition: color 0.2s;
+        font-weight: 500;
+      }
+      .board-table td.title a:hover {
+        color: #1e40af;
+        text-decoration: underline;
+      }
+
+      /* 글쓰기 버튼 (기본 숨김, JS로 관리자에게만 표시) */
+      #writeBtnArea {
+        display: none;
+        text-align: right;
+        margin-top: 20px;
+      }
+      .btn-write {
+        background-color: #1e40af;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .btn-write:hover {
+        background-color: #1e3a8a;
+      }
+
+      /* 공지사항 강조 표시 */
+      .notice-badge {
+        background: #fee2e2;
+        color: #ef4444;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+
+    <main class="board-container">
+      <div class="board-header">
+        <div>
+          <h2 id="boardTitle">교회 공지사항</h2>
+          <p style="color: #64748b; margin-top: 10px">길교회의 주요 소식을 전해드립니다.</p>
+        </div>
+        <!-- 관리자용 글쓰기 버튼 영역 -->
+        <div id="writeBtnArea">
+          <a href="board_write.html?type=notice" class="btn-write">공지사항 등록</a>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="board-table">
+          <thead>
+            <tr>
+              <th style="width: 80px">번호</th>
+              <th>제목</th>
+              <th style="width: 120px">작성자</th>
+              <th style="width: 150px">날짜</th>
+              <th style="width: 100px">조회수</th>
+            </tr>
+          </thead>
+          <tbody id="postList">
+            <!-- 자바스크립트로 게시글 목록이 생성됩니다 -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/board.js"></script>
+  </body>
+</html>

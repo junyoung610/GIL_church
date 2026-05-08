@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>글 상세보기 - 길교회</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      .detail-container {
+        max-width: 1000px;
+        margin: 50px auto;
+        padding: 0 20px;
+        min-height: 600px;
+      }
+
+      /* 제목 영역 */
+      .detail-header {
+        border-bottom: 2px solid #1e40af;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+      .detail-header h2 {
+        font-size: 2.2rem;
+        color: #1a1a2e;
+        margin-bottom: 15px;
+        line-height: 1.3;
+      }
+      .post-info {
+        display: flex;
+        gap: 20px;
+        color: #64748b;
+        font-size: 0.95rem;
+      }
+      .info-item b {
+        color: #334155;
+        margin-right: 5px;
+      }
+
+      /* 본문 영역 */
+      .detail-content {
+        background: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        min-height: 300px;
+        line-height: 1.8;
+        font-size: 1.1rem;
+        color: #334155;
+        white-space: pre-wrap;
+      }
+
+      /* 하단 버튼 영역 */
+      .detail-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 20px;
+      }
+      .btn-side {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn-board {
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: background 0.2s;
+      }
+      .btn-list {
+        background-color: #f1f5f9;
+        color: #475569;
+      }
+      .btn-list:hover {
+        background-color: #e2e8f0;
+      }
+      .btn-edit {
+        background-color: #3b82f6;
+        color: white;
+        display: none;
+      } /* 기본 숨김 */
+      .btn-delete {
+        background-color: #ef4444;
+        color: white;
+        display: none;
+      } /* 기본 숨김 */
+
+      /* 주보 이미지가 본문 영역을 넘지 않고 꽉 차게 */
+      .detail-content img {
+        max-width: 100%;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+
+    <main class="detail-container">
+      <div class="detail-header">
+        <h2 id="viewTitle">게시글 제목이 로딩 중입니다...</h2>
+        <div class="post-info">
+          <span class="info-item"><b>작성자</b> <span id="viewAuthor">-</span></span>
+          <span class="info-item"><b>작성일</b> <span id="viewDate">-</span></span>
+          <span class="info-item"><b>조회수</b> <span id="viewViews">0</span></span>
+        </div>
+      </div>
+
+      <article class="detail-content">
+        <div id="viewContent" style="white-space: pre-wrap; line-height: 1.6">
+          <div id="imageInsideCard" style="display: none; text-align: center; margin-bottom: 20px">
+            <div id="imageDisplay"></div>
+          </div>
+
+          <div id="textContent">내용 로딩 중...</div>
+        </div>
+      </article>
+
+      <div id="downloadArea" style="margin-top: 20px; display: none">
+        <div
+          style="
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+          "
+        >
+          <div
+            style="
+              background: #1e40af;
+              color: white;
+              width: 40px;
+              height: 40px;
+              border-radius: 8px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 1rem;
+            "
+          >
+            💾
+          </div>
+          <div id="fileDownloadCard"></div>
+        </div>
+      </div>
+
+      <div class="detail-footer">
+        <a href="board_list.html" class="btn-board btn-list">목록으로</a>
+
+        <div class="btn-side">
+          <button id="editPostBtn" class="btn-board btn-edit">수정하기</button>
+          <button id="deletePostBtn" class="btn-board btn-delete">삭제하기</button>
+        </div>
+      </div>
+    </main>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/board.js"></script>
+  </body>
+</html>

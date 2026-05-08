@@ -1,66 +1,185 @@
-/* 기본 여백 초기화 및 폰트 설정 */
+/* 기본 초기화 */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family:
-    "Pretendard",
-    -apple-system,
-    sans-serif;
+  font-family: "Pretendard", sans-serif;
 }
-
 body {
   background-color: #f8f9fa;
   color: #333;
 }
-
-/* 화면 중앙 정렬 및 최대 너비 고정 (PC 최적화) */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
-/* 상단 헤더 디자인 */
-header {
-  background-color: #1a1a2e; /* 짙은 남색 */
+/* -------------------------------------
+   PC 중심 네비게이션 스타일 (우선 적용) 
+------------------------------------- */
+.main-nav {
+  background-color: #1a1a2e;
   color: white;
-  padding: 20px 0;
+  position: relative;
+  z-index: 100;
 }
-
-header .container {
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 70px;
+}
+.logo {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-decoration: none;
 }
 
-/* 네비게이션 메뉴 디자인 */
-nav ul {
+.nav-menu {
   list-style: none;
   display: flex;
   gap: 30px;
+  margin: 0;
+  padding: 0;
 }
-
-nav a {
-  color: #ffffff;
+.nav-menu > li {
+  position: relative;
+  height: 70px;
+  display: flex;
+  align-items: center;
+}
+.nav-menu a {
+  color: white;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1.1rem;
   transition: color 0.3s;
+  padding: 10px 0;
+  display: block;
 }
-
-nav a:hover {
+.nav-menu a:hover {
   color: #cbd5e1;
 }
 
-/* 메인 콘텐츠 영역 디자인 */
-.hero-section {
-  padding-top: 80px;
-  text-align: center;
+/* 서브메뉴 (PC에서 마우스 올렸을 때 나타남) */
+.submenu {
+  display: none;
+  position: absolute;
+  top: 70px;
+  left: 0;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  min-width: 150px;
+  padding: 10px 0;
+  list-style: none;
+}
+.has-submenu:hover .submenu {
+  display: block;
+}
+.submenu a {
+  color: #333;
+  padding: 10px 20px;
+  font-size: 1rem;
+}
+.submenu a:hover {
+  background-color: #f1f5f9;
+  color: #1e40af;
 }
 
-.hero-section h2 {
-  font-size: 2.5rem;
-  margin-bottom: 15px;
-  color: #1e40af;
+/* 햄버거 버튼 (PC에서는 기본적으로 숨김) */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+}
+.hamburger .bar {
+  display: block;
+  width: 25px;
+  height: 3px;
+  margin: 5px auto;
+  background-color: white;
+  transition: all 0.3s ease-in-out;
+}
+
+/* 메인 배너 및 컨텐츠 */
+.hero-banner {
+  background-color: #1e40af;
+  color: white;
+  text-align: center;
+  padding: 100px 20px;
+}
+.hero-banner h2 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+.content-section {
+  padding: 60px 20px;
+}
+
+/* -------------------------------------
+   모바일 반응형 스타일 (화면이 768px 이하일 때 적용) 
+------------------------------------- */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  } /* 모바일에서 햄버거 표시 */
+
+  .nav-menu {
+    position: absolute;
+    top: 70px;
+    left: -100%;
+    width: 100%;
+    flex-direction: column;
+    background-color: #1a1a2e;
+    height: calc(100vh - 70px);
+    align-items: flex-start;
+    padding: 20px;
+    transition: left 0.3s ease;
+    gap: 0;
+  }
+
+  .nav-menu.active {
+    left: 0;
+  } /* 햄버거 누르면 왼쪽에서 등장 */
+  .nav-menu > li {
+    height: auto;
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 0;
+    display: block;
+  }
+
+  .has-submenu:hover .submenu {
+    display: none;
+  } /* 모바일 기본 hover 동작 끄기 */
+  .submenu {
+    position: static;
+    background: transparent;
+    box-shadow: none;
+    padding-left: 20px;
+    display: block;
+  }
+  .submenu a {
+    color: #cbd5e1;
+    font-size: 0.95rem;
+  }
+
+  /* 햄버거 버튼 X 모양 애니메이션 */
+  .hamburger.active .bar:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger.active .bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  .hamburger.active .bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
 }
