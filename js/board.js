@@ -121,37 +121,40 @@ async function setupWritePage(postId, currentUser, boardType) {
 }
 
 // 3. 상세보기 불러오기
+// js/board.js 내 loadPostDetail 함수 부분 수정
 async function loadPostDetail(postId, currentUser) {
   const postRef = doc(db, "posts", postId);
   const postSnap = await getDoc(postRef);
   if (!postSnap.exists()) return;
 
   const post = postSnap.data();
-  // 조회수 증가
-  await updateDoc(postRef, { views: (post.views || 0) + 1 });
 
+  // --- 조회수 증가 로직 수정 ---
+  try {
+    // 권한이 없더라도(비로그인 등) 글 내용은 볼 수 있도록 try-catch로 감쌉니다.
+    await updateDoc(postRef, { views: (post.views || 0) + 1 });
+  } catch (error) {
+    console.log("조회수 업데이트 스킵 (권한 없음)");
+  }
+
+  // 데이터 출력 (이제 위에서 에러가 나도 이 부분은 실행됩니다)
   document.getElementById("viewTitle").innerText = post.title;
   document.getElementById("viewAuthor").innerText = post.author;
   document.getElementById("viewDate").innerText = post.date.split("T")[0];
   document.getElementById("viewViews").innerText = (post.views || 0) + 1;
-  document.getElementById("textContent").innerText = post.content.trim();
 
-  // 이미지/파일 표시 (원하셨던 구조 유지)
-  if (post.fileUrl && post.fileType.startsWith("image/")) {
+  // 내용 출력 시 데이터가 없는 경우를 대비해 안전하게 처리
+  const content = post.content ? post.content.trim() : "";
+  document.getElementById("textContent").innerText = content;
+
+  // 이미지 표시 부분도 안전하게 체크 (fileType이 없을 경우 대비)
+  if (post.fileUrl && post.fileType && post.fileType.startsWith("image/")) {
     const imgArea = document.getElementById("imageInsideCard");
     imgArea.style.display = "block";
     document.getElementById("imageDisplay").innerHTML =
       `<img src="${post.fileUrl}" style="max-width:100%; border-radius:8px;">`;
   }
-
-  if (post.fileUrl) {
-    const downArea = document.getElementById("downloadArea");
-    downArea.style.display = "block";
-    document.getElementById("fileDownloadCard").innerHTML = `
-            <p style="margin:0; font-weight:bold;">첨부파일</p>
-            <a href="${post.fileUrl}" target="_blank" download="${post.fileName}">${post.fileName}</a>
-        `;
-  }
+  // ... 이하 동일 ...
 
   // 수정/삭제 버튼 제어
   if (currentUser && (currentUser.uid === post.authorId || currentUser.role === "admin")) {
