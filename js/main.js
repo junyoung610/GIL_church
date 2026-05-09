@@ -18,6 +18,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 3. 메인 페이지 전용: 최신 소식 로드
   loadMainRecentPosts();
+
+  // loadComponent 함수 내부의 링크 교정 부분 수정
+  const images = placeholder.querySelectorAll("img");
+  images.forEach((img) => {
+    const currentSrc = img.getAttribute("src");
+    if (currentSrc && currentSrc.startsWith("../")) {
+      const cleanPath = currentSrc.replace("../", "");
+      img.setAttribute("src", basePath + cleanPath);
+    }
+  });
 });
 
 /**
