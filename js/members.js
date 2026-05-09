@@ -1,16 +1,18 @@
-import { db } from "./firebase-config.js";
+import { db, auth } from "./firebase-config.js";
 import {
   collection,
   getDocs,
   doc,
+  getDoc,
   updateDoc,
   deleteDoc,
-  query,
-  orderBy,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// 전역 변수로 현재 수정 중인 사용자의 UID 저장
+let currentEditUid = null;
+
 document.addEventListener("DOMContentLoaded", async () => {
-  // 1. 관리자 보안 검사 (기존 로그인 정보 활용)
+  // 1. 관리자 권한 체크
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   if (!currentUser || currentUser.role !== "admin") {
     alert("관리자만 접근할 수 있습니다.");
@@ -22,6 +24,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   await refreshAdminData();
 
   // 3. 사이드바 메뉴 탭 기능
+  setupTabs();
+});
+
+// --- 탭 메뉴 설정 ---
+function setupTabs() {
   const menuItems = document.querySelectorAll("#adminMenu li");
   const panels = document.querySelectorAll(".tab-panel");
 
@@ -36,9 +43,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     });
   });
-});
+}
 
-// 모든 데이터를 한 번에 새로고침하는 함수
+// --- 데이터 새로고침 ---
 async function refreshAdminData() {
   try {
     const querySnapshot = await getDocs(collection(db, "users"));
@@ -52,11 +59,11 @@ async function refreshAdminData() {
     renderGroups(users);
     renderNewFamily(users);
   } catch (error) {
-    console.error("데이터 불러오기 실패:", error);
+    console.error("데이터 로드 실패:", error);
   }
 }
 
-// --- 회원 목록 렌더링 ---
+// --- 회원 목록 출력 ---
 function renderMemberList(users) {
   const tableBody = document.getElementById("memberData");
   tableBody.innerHTML = "";
@@ -81,21 +88,85 @@ function renderMemberList(users) {
   });
 }
 
-// --- 전역 함수 등록 (HTML onclick 대응) ---
-window.deleteUser = async function (uid, name) {
-  if (confirm(`${name} 성도님의 정보를 삭제하시겠습니까?`)) {
-    await deleteDoc(doc(db, "users", uid));
-    alert("삭제되었습니다.");
-    refreshAdminData();
+// --- [핵심] 상세 수정 모달 열기 ---
+window.openEditModal = async function (uid) {
+  currentEditUid = uid;
+  try {
+    const userDoc = await getDoc(doc(db, "users", uid));
+    if (userDoc.exists()) {
+      const user = userDoc.data();
+
+      // 모달 필드에 데이터 채우기
+      document.getElementById("editName").value = user.name || "";
+      document.getElementById("editId").value = user.id || "";
+      document.getElementById("editPhone").value = user.phone || "";
+      document.getElementById("editBirth").value = user.birth || "";
+      document.getElementById("editPosition").value = user.position || "성도";
+      document.getElementById("editGroup").value = user.group || "미편성";
+      document.getElementById("editStatus").value = user.status || "등록";
+      document.getElementById("editMemo").value = user.memo || "";
+      document.getElementById("editAddress").value = user.address || "";
+
+      // 모달 보이기
+      document.getElementById("editModal").style.display = "flex";
+    }
+  } catch (error) {
+    alert("정보를 불러오지 못했습니다.");
   }
 };
 
-window.openEditModal = async function (uid) {
-  // 상세 수정 모달 로직 (필요 시 구현)
-  alert("상세 수정 기능은 Firebase updateDoc으로 연동이 필요합니다.");
+// --- [핵심] 수정 내용 저장하기 ---
+window.saveAdminEdit = async function () {
+  if (!currentEditUid) return;
+
+  const updatedData = {
+    name: document.getElementById("editName").value,
+    phone: document.getElementById("editPhone").value,
+    birth: document.getElementById("editBirth").value,
+    position: document.getElementById("editPosition").value,
+    group: document.getElementById("editGroup").value,
+    status: document.getElementById("editStatus").value,
+    memo: document.getElementById("editMemo").value,
+    address: document.getElementById("editAddress").value,
+  };
+
+  try {
+    await updateDoc(doc(db, "users", currentEditUid), updatedData);
+    alert("성공적으로 수정되었습니다.");
+    closeModal();
+    await refreshAdminData(); // 화면 갱신
+  } catch (error) {
+    alert("수정 중 오류가 발생했습니다.");
+  }
 };
 
-// --- 통계 및 구역 관리 ---
+// --- 모달 닫기 ---
+window.closeModal = function () {
+  document.getElementById("editModal").style.display = "none";
+  currentEditUid = null;
+};
+
+// --- 회원 삭제 ---
+window.deleteUser = async function (uid, name) {
+  if (confirm(`${name} 성도님의 정보를 정말 삭제하시겠습니까?`)) {
+    try {
+      await deleteDoc(doc(db, "users", uid));
+      alert("삭제되었습니다.");
+      await refreshAdminData();
+    } catch (error) {
+      alert("삭제 권한이 없거나 오류가 발생했습니다.");
+    }
+  }
+};
+
+// --- 비밀번호 초기화 안내 ---
+window.resetUserPassword = function () {
+  alert(
+    "Firebase Auth의 비밀번호는 관리자가 직접 바꿀 수 없습니다.\n사용자에게 '비밀번호 재설정 이메일'을 보내거나 Firebase 콘솔에서 직접 변경해야 합니다.",
+  );
+};
+
+// --- 기타 통계 및 구역 렌더링 함수들 ---
 function renderStatistics(users) {
   const statsContainer = document.getElementById("statsContainer");
   statsContainer.innerHTML = `
