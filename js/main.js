@@ -117,3 +117,39 @@ async function loadMainRecentPosts() {
     console.error("메인 소식 로드 실패:", error);
   }
 }
+// js/main.js 파일에 추가 (loadMainRecentPosts 근처에 배치)
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+async function loadLatestSermon() {
+  const videoArea = document.getElementById("latestSermonVideo");
+  if (!videoArea) return;
+
+  try {
+    // 1. Firestore의 'settings/mainPage' 문서에서 영상 ID를 가져옵니다.
+    // (미리 Firestore에 데이터를 생성해두어야 합니다. 예: { latestVideoId: "유튜브_영상_ID" })
+    const docRef = doc(db, "settings", "mainPage");
+    const docSnap = await getDoc(docRef);
+
+    let videoId = "X7R-q9knSbs"; // [기본값] 데이터가 없을 때 보여줄 예시 영상 ID
+
+    if (docSnap.exists()) {
+      videoId = docSnap.data().latestVideoId;
+    }
+
+    // 2. 유튜브 iframe 생성 및 삽입
+    videoArea.innerHTML = `
+            <iframe 
+                src="https://www.youtube.com/embed/${videoId}" 
+                title="최신 설교 영상" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen>
+            </iframe>
+        `;
+  } catch (error) {
+    console.error("영상 로드 실패:", error);
+    videoArea.innerHTML = '<p class="loading">영상을 불러올 수 없습니다.</p>';
+  }
+}
+
+// 초기 실행 함수(DOMContentLoaded) 안에서 호출하도록 추가하세요.
+loadLatestSermon();
