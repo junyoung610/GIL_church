@@ -55,7 +55,7 @@ if (signupForm) {
         group: document.getElementById("signupGroup").value,
         address: document.getElementById("signupAddress").value,
         addressDetail: document.getElementById("signupAddressDetail").value,
-        role: email.includes("admin") ? "admin" : "member",
+        role: "member", // 무조건 일반 회원으로 시작
         registerDate: new Date().toISOString(),
         status: "등록",
       });
