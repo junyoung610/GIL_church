@@ -25,17 +25,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --- [섹션 1. 목록 페이지 로직] ---
   const postList = document.getElementById("postList");
-  // js/board.js 내 postList 체크 부분 수정
   if (postList) {
     const boardTitle = document.getElementById("boardTitle");
     if (boardTitle) {
       if (boardType === "bulletin") boardTitle.innerText = "온라인 주보";
-      else if (boardType === "sermon")
-        boardTitle.innerText = "주일설교 목록"; // 추가
+      else if (boardType === "sermon") boardTitle.innerText = "주일설교 목록";
       else boardTitle.innerText = "교회 공지사항";
     }
 
-    // 관리자에게만 글쓰기 버튼 노출
     if (currentUser && currentUser.role === "admin") {
       const writeBtnArea = document.getElementById("writeBtnArea");
       if (writeBtnArea) {
@@ -49,6 +46,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- [섹션 2. 글쓰기/수정 로직] ---
   const writeForm = document.getElementById("writeForm");
   if (writeForm) {
+    // 주일설교 게시판일 경우 영상 ID 입력창 노출
+    const videoGroup = document.getElementById("sermonVideoGroup");
+    if (boardType === "sermon" && videoGroup) {
+      videoGroup.style.display = "block";
+    }
     setupWritePage(postId, currentUser, boardType);
   }
 
@@ -59,7 +61,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// 1. 목록 불러오기
 async function loadPosts(type) {
   const q = query(collection(db, "posts"), where("type", "==", type), orderBy("date", "desc"));
   const querySnapshot = await getDocs(q);
@@ -81,7 +82,6 @@ async function loadPosts(type) {
   });
 }
 
-// 2. 글쓰기 페이지 설정
 async function setupWritePage(postId, currentUser, boardType) {
   if (!currentUser) {
     alert("로그인이 필요합니다.");
@@ -95,11 +95,14 @@ async function setupWritePage(postId, currentUser, boardType) {
     e.preventDefault();
     const title = document.getElementById("postTitle").value;
     const content = document.getElementById("postContent").value;
+    const videoId = document.getElementById("postVideoId")
+      ? document.getElementById("postVideoId").value
+      : null;
     const file = document.getElementById("postFile").files[0];
+
     let fileUrl = null;
     let fileName = null;
 
-    // 파일이 있으면 Storage에 업로드
     if (file) {
       const fileRef = ref(storage, `boards/${Date.now()}_${file.name}`);
       const snapshot = await uploadBytes(fileRef, file);
@@ -111,6 +114,7 @@ async function setupWritePage(postId, currentUser, boardType) {
       title,
       content,
       type: boardType,
+      videoId: videoId, // 영상 ID 저장
       author: currentUser.name,
       authorId: currentUser.uid,
       date: new Date().toISOString(),
@@ -126,51 +130,35 @@ async function setupWritePage(postId, currentUser, boardType) {
   });
 }
 
-// 3. 상세보기 불러오기
-// js/board.js 내 loadPostDetail 함수 부분 수정
 async function loadPostDetail(postId, currentUser) {
   const postRef = doc(db, "posts", postId);
   const postSnap = await getDoc(postRef);
   if (!postSnap.exists()) return;
 
   const post = postSnap.data();
-
-  // --- 조회수 증가 로직 수정 ---
   try {
-    // 권한이 없더라도(비로그인 등) 글 내용은 볼 수 있도록 try-catch로 감쌉니다.
     await updateDoc(postRef, { views: (post.views || 0) + 1 });
-  } catch (error) {
-    console.log("조회수 업데이트 스킵 (권한 없음)");
-  }
+  } catch (e) {}
 
-  // 데이터 출력 (이제 위에서 에러가 나도 이 부분은 실행됩니다)
   document.getElementById("viewTitle").innerText = post.title;
   document.getElementById("viewAuthor").innerText = post.author;
   document.getElementById("viewDate").innerText = post.date.split("T")[0];
   document.getElementById("viewViews").innerText = (post.views || 0) + 1;
+  document.getElementById("textContent").innerText = post.content.trim();
 
-  // 내용 출력 시 데이터가 없는 경우를 대비해 안전하게 처리
-  const content = post.content ? post.content.trim() : "";
-  document.getElementById("textContent").innerText = content;
-
-  // 이미지 표시 부분도 안전하게 체크 (fileType이 없을 경우 대비)
-  if (post.fileUrl && post.fileType && post.fileType.startsWith("image/")) {
+  // 설교 영상이 있는 경우 본문에 표시
+  if (post.videoId) {
+    const videoDisplay = document.getElementById("imageDisplay"); // 기존 이미지 영역 활용 혹은 신규 생성
+    document.getElementById("imageInsideCard").style.display = "block";
+    videoDisplay.innerHTML = `
+      <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; max-width:100%;">
+        <iframe src="https://www.youtube.com/embed/${post.videoId}" style="position:absolute; top:0; left:0; width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>
+      </div>
+    `;
+  } else if (post.fileUrl && post.fileType?.startsWith("image/")) {
     const imgArea = document.getElementById("imageInsideCard");
     imgArea.style.display = "block";
     document.getElementById("imageDisplay").innerHTML =
       `<img src="${post.fileUrl}" style="max-width:100%; border-radius:8px;">`;
-  }
-  // ... 이하 동일 ...
-
-  // 수정/삭제 버튼 제어
-  if (currentUser && (currentUser.uid === post.authorId || currentUser.role === "admin")) {
-    const deleteBtn = document.getElementById("deletePostBtn");
-    deleteBtn.style.display = "inline-block";
-    deleteBtn.onclick = async () => {
-      if (confirm("삭제하시겠습니까?")) {
-        await deleteDoc(postRef);
-        window.location.href = `board_list.html?type=${post.type}`;
-      }
-    };
   }
 }
