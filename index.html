@@ -13,15 +13,65 @@
     <!-- 메인 컨텐츠 -->
     <main>
       <section class="hero-banner">
-        <div class="container">
+        <div class="slider-container">
+          <div class="slider-wrapper">
+            <div class="slide slide1"></div>
+            <div class="slide slide2"></div>
+            <div class="slide slide3"></div>
+            <div class="slide slide1"></div>
+          </div>
+        </div>
+        <div class="container hero-content">
           <h2>길교회에 오신 것을 환영합니다</h2>
-          <p>PC 화면에 최적화된 시원한 레이아웃입니다.</p>
+          <p>주님과 함께 걷는 믿음의 공동체입니다.</p>
         </div>
       </section>
 
-      <section class="content-section container">
-        <h3>최신 소식</h3>
-        <p>이곳에 게시판이나 교회 주요 소식이 배치될 수 있습니다.</p>
+      <section class="quick-menu container reveal">
+        <div class="menu-item">
+          <a href="#">
+            <div class="icon">🙏</div>
+            <span>예배안내</span>
+          </a>
+        </div>
+        <div class="menu-item">
+          <a href="./pages/board_list.html?type=bulletin">
+            <div class="icon">📖</div>
+            <span>온라인주보</span>
+          </a>
+        </div>
+        <div class="menu-item">
+          <a href="#">
+            <div class="icon">📍</div>
+            <span>오시는길</span>
+          </a>
+        </div>
+        <div class="menu-item">
+          <a href="#">
+            <div class="icon">❤️</div>
+            <span>온라인헌금</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="latest-section container reveal">
+        <div class="latest-flex">
+          <div class="latest-video">
+            <h3>최신 설교 영상</h3>
+            <div class="video-placeholder">
+              <p>영상 준비 중입니다.</p>
+            </div>
+          </div>
+          <div class="latest-news">
+            <div class="news-header">
+              <h3>교회 소식</h3>
+              <a href="./pages/board_list.html?type=notice" class="more-btn">+ 더보기</a>
+            </div>
+            <ul id="mainRecentPosts" class="news-list">
+              <li class="loading">소식을 불러오는 중입니다...</li>
+            </ul>
+          </div>
+        </div>
       </section>
     </main>
 
