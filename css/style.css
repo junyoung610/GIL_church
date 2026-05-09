@@ -362,3 +362,109 @@ body {
     flex-direction: column;
   }
 }
+
+/* 푸터 전체 스타일 */
+.main-footer {
+  background-color: #1a1a2e; /* 네비게이션과 동일한 색상 */
+  color: #cbd5e1;
+  padding: 60px 0 0 0;
+  margin-top: 50px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr; /* 2:1:1.5 비율로 배치 */
+  gap: 40px;
+  padding-bottom: 50px;
+}
+
+.footer-logo {
+  color: white;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.footer-info p {
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.contact-details p {
+  font-size: 0.95rem;
+  margin-bottom: 8px !important;
+}
+
+.main-footer h4 {
+  color: white;
+  font-size: 1.2rem;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+/* 제목 아래 작은 선 추가 */
+.main-footer h4::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background-color: #1e40af;
+}
+
+.main-footer ul {
+  list-style: none;
+}
+
+.main-footer ul li {
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.footer-links a {
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: white;
+}
+
+/* 예배 시간표 좌우 정렬 */
+.footer-times li {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+/* 저작권 영역 */
+.footer-bottom {
+  background-color: #111122;
+  padding: 20px 0;
+  text-align: center;
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-bottom a {
+  color: #64748b;
+  text-decoration: none;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr; /* 모바일에선 한 줄로 */
+    text-align: center;
+  }
+  .main-footer h4::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .footer-times li {
+    justify-content: center;
+    gap: 20px;
+  }
+}

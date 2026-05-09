@@ -1,4 +1,3 @@
-// 1. 필요한 Firebase 도구 및 설정 불러오기 (반드시 최상단에 위치)
 import { db } from "./firebase-config.js";
 import {
   collection,
@@ -9,22 +8,32 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 현재 페이지 위치에 따라 상대 경로의 기준(basePath)을 설정
-  // /pages/ 안에 있으면 ../, 루트에 있으면 ./ 가 됩니다.
   const basePath = window.location.pathname.includes("/pages/") ? "../" : "./";
 
-  // 2. 공통 네비게이션 바 불러오기
-  fetch(basePath + "components/nav.html")
+  // 1. 네비게이션 로드
+  loadComponent(basePath + "components/nav.html", "nav-placeholder", basePath);
+
+  // 2. 푸터 로드 (추가된 부분)
+  loadComponent(basePath + "components/footer.html", "footer-placeholder", basePath);
+
+  // 3. 메인 페이지 전용: 최신 소식 로드
+  loadMainRecentPosts();
+});
+
+/**
+ * 공통 컴포넌트(HTML)를 불러와서 특정 위치에 넣고 경로를 교정하는 함수
+ */
+function loadComponent(url, placeholderId, basePath) {
+  fetch(url)
     .then((response) => response.text())
     .then((data) => {
-      const navPlaceholder = document.getElementById("nav-placeholder");
-      if (navPlaceholder) {
-        navPlaceholder.innerHTML = data;
+      const placeholder = document.getElementById(placeholderId);
+      if (placeholder) {
+        placeholder.innerHTML = data;
 
-        // 3. 네비게이션 내의 모든 링크 경로 교정
-        // nav.html에 작성된 "../" 경로들을 현재 페이지 위치에 맞춰 자동으로 변경합니다.
-        const navLinks = document.querySelectorAll("#navMenu a, .logo");
-        navLinks.forEach((link) => {
+        // 링크 경로 교정 (../ 로 시작하는 경로들을 basePath에 맞춰 변경)
+        const links = placeholder.querySelectorAll("a");
+        links.forEach((link) => {
           const currentHref = link.getAttribute("href");
           if (currentHref && currentHref !== "#") {
             const cleanPath = currentHref.replace("../", "");
@@ -32,24 +41,19 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
 
-        // 4. 메뉴가 화면에 그려진 후 이벤트와 로그인 상태 세팅
-        initNavigation(basePath);
+        // 네비게이션인 경우 로그인 상태 세팅 함수 실행
+        if (placeholderId === "nav-placeholder") {
+          initNavigation(basePath);
+        }
       }
     })
-    .catch((error) => console.error("네비게이션 로드 실패:", error));
+    .catch((error) => console.error(`${placeholderId} 로드 실패:`, error));
+}
 
-  // 5. 메인 페이지 전용: 최신 소식 로드 함수 실행
-  loadMainRecentPosts();
-});
-
-/**
- * 네비게이션 초기화 및 로그인 상태 UI 변경 함수
- */
 function initNavigation(basePath) {
   const hamburgerBtn = document.getElementById("hamburgerBtn");
   const navMenu = document.getElementById("navMenu");
 
-  // 햄버거 메뉴 동작
   if (hamburgerBtn && navMenu) {
     hamburgerBtn.addEventListener("click", () => {
       hamburgerBtn.classList.toggle("active");
@@ -57,7 +61,6 @@ function initNavigation(basePath) {
     });
   }
 
-  // 로그인 상태 확인 및 상단 메뉴(마이페이지/로그아웃) UI 변경
   const authMenuArea = document.getElementById("authMenuArea");
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -74,7 +77,7 @@ function initNavigation(basePath) {
       document.getElementById("logoutBtn").addEventListener("click", (e) => {
         e.preventDefault();
         localStorage.removeItem("currentUser");
-        alert("로그아웃 되었습니다.");
+        alert("안전하게 로그아웃 되었습니다.");
         window.location.href = basePath + "index.html";
       });
     } else {
@@ -83,12 +86,9 @@ function initNavigation(basePath) {
   }
 }
 
-/**
- * 메인 페이지(index.html)에서 최신 게시글 5개를 불러오는 함수
- */
 async function loadMainRecentPosts() {
   const newsContainer = document.getElementById("mainRecentPosts");
-  if (!newsContainer) return; // 메인 페이지가 아니면 중단
+  if (!newsContainer) return;
 
   try {
     const q = query(collection(db, "posts"), orderBy("date", "desc"), limit(5));
