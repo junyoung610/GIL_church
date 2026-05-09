@@ -25,9 +25,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --- [섹션 1. 목록 페이지 로직] ---
   const postList = document.getElementById("postList");
+  // js/board.js 내 postList 체크 부분 수정
   if (postList) {
-    document.getElementById("boardTitle").innerText =
-      boardType === "bulletin" ? "온라인 주보" : "교회 공지사항";
+    const boardTitle = document.getElementById("boardTitle");
+    if (boardTitle) {
+      if (boardType === "bulletin") boardTitle.innerText = "온라인 주보";
+      else if (boardType === "sermon")
+        boardTitle.innerText = "주일설교 목록"; // 추가
+      else boardTitle.innerText = "교회 공지사항";
+    }
 
     // 관리자에게만 글쓰기 버튼 노출
     if (currentUser && currentUser.role === "admin") {
