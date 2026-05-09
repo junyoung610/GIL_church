@@ -1,4 +1,4 @@
-import { db, auth } from "./firebase-config.js";
+import { db } from "./firebase-config.js";
 import {
   collection,
   getDocs,
@@ -8,44 +8,26 @@ import {
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 전역 변수로 현재 수정 중인 사용자의 UID 저장
+// 현재 수정 중인 성도님의 UID를 기억하기 위한 변수
 let currentEditUid = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // 1. 관리자 권한 체크
+  // 1. 관리자 보안 검사 (기존 로그인 정보 활용)
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   if (!currentUser || currentUser.role !== "admin") {
-    alert("관리자만 접근할 수 있습니다.");
+    alert("관리자만 접근할 수 있는 페이지입니다.");
     window.location.href = "../index.html";
     return;
   }
 
-  // 2. 초기 데이터 로드
+  // 2. 초기 데이터 로드 (서버에서 명단 가져오기)
   await refreshAdminData();
 
-  // 3. 사이드바 메뉴 탭 기능
-  setupTabs();
+  // 3. 사이드바 메뉴 탭 기능 설정
+  setupAdminTabs();
 });
 
-// --- 탭 메뉴 설정 ---
-function setupTabs() {
-  const menuItems = document.querySelectorAll("#adminMenu li");
-  const panels = document.querySelectorAll(".tab-panel");
-
-  menuItems.forEach((item) => {
-    item.addEventListener("click", () => {
-      menuItems.forEach((m) => m.classList.remove("active"));
-      item.classList.add("active");
-      const targetId = item.getAttribute("data-target");
-      panels.forEach((panel) => {
-        panel.classList.remove("active");
-        if (panel.id === targetId) panel.classList.add("active");
-      });
-    });
-  });
-}
-
-// --- 데이터 새로고침 ---
+// --- [공통] 데이터 새로고침 함수 ---
 async function refreshAdminData() {
   try {
     const querySnapshot = await getDocs(collection(db, "users"));
@@ -63,7 +45,7 @@ async function refreshAdminData() {
   }
 }
 
-// --- 회원 목록 출력 ---
+// --- [기능 1] 회원 목록 출력 ---
 function renderMemberList(users) {
   const tableBody = document.getElementById("memberData");
   tableBody.innerHTML = "";
@@ -88,15 +70,15 @@ function renderMemberList(users) {
   });
 }
 
-// --- [핵심] 상세 수정 모달 열기 ---
+// --- [기능 2] 수정 모달 열기 (Firebase 데이터 로드) ---
 window.openEditModal = async function (uid) {
-  currentEditUid = uid;
+  currentEditUid = uid; // 수정할 대상의 ID 저장
   try {
     const userDoc = await getDoc(doc(db, "users", uid));
     if (userDoc.exists()) {
       const user = userDoc.data();
 
-      // 모달 필드에 데이터 채우기
+      // HTML의 모달 입력 칸들에 데이터 채워넣기
       document.getElementById("editName").value = user.name || "";
       document.getElementById("editId").value = user.id || "";
       document.getElementById("editPhone").value = user.phone || "";
@@ -107,7 +89,7 @@ window.openEditModal = async function (uid) {
       document.getElementById("editMemo").value = user.memo || "";
       document.getElementById("editAddress").value = user.address || "";
 
-      // 모달 보이기
+      // 모달창 띄우기
       document.getElementById("editModal").style.display = "flex";
     }
   } catch (error) {
@@ -115,10 +97,11 @@ window.openEditModal = async function (uid) {
   }
 };
 
-// --- [핵심] 수정 내용 저장하기 ---
+// --- [기능 3] 수정 내용 저장하기 (Firebase updateDoc) ---
 window.saveAdminEdit = async function () {
   if (!currentEditUid) return;
 
+  // 입력된 최신 정보 모으기
   const updatedData = {
     name: document.getElementById("editName").value,
     phone: document.getElementById("editPhone").value,
@@ -131,22 +114,18 @@ window.saveAdminEdit = async function () {
   };
 
   try {
+    // Firebase 서버 업데이트
     await updateDoc(doc(db, "users", currentEditUid), updatedData);
     alert("성공적으로 수정되었습니다.");
-    closeModal();
-    await refreshAdminData(); // 화면 갱신
+    closeModal(); // 모달 닫기
+    await refreshAdminData(); // 목록 새로고침
   } catch (error) {
-    alert("수정 중 오류가 발생했습니다.");
+    console.error("수정 오류:", error);
+    alert("수정 중 오류가 발생했습니다. 권한을 확인해주세요.");
   }
 };
 
-// --- 모달 닫기 ---
-window.closeModal = function () {
-  document.getElementById("editModal").style.display = "none";
-  currentEditUid = null;
-};
-
-// --- 회원 삭제 ---
+// --- [기능 4] 회원 삭제 기능 ---
 window.deleteUser = async function (uid, name) {
   if (confirm(`${name} 성도님의 정보를 정말 삭제하시겠습니까?`)) {
     try {
@@ -159,14 +138,31 @@ window.deleteUser = async function (uid, name) {
   }
 };
 
-// --- 비밀번호 초기화 안내 ---
-window.resetUserPassword = function () {
-  alert(
-    "Firebase Auth의 비밀번호는 관리자가 직접 바꿀 수 없습니다.\n사용자에게 '비밀번호 재설정 이메일'을 보내거나 Firebase 콘솔에서 직접 변경해야 합니다.",
-  );
+// --- [기능 5] 모달 닫기 ---
+window.closeModal = function () {
+  document.getElementById("editModal").style.display = "none";
+  currentEditUid = null;
 };
 
-// --- 기타 통계 및 구역 렌더링 함수들 ---
+// --- [기능 6] 탭 메뉴 설정 ---
+function setupAdminTabs() {
+  const menuItems = document.querySelectorAll("#adminMenu li");
+  const panels = document.querySelectorAll(".tab-panel");
+
+  menuItems.forEach((item) => {
+    item.addEventListener("click", () => {
+      menuItems.forEach((m) => m.classList.remove("active"));
+      item.classList.add("active");
+      const targetId = item.getAttribute("data-target");
+      panels.forEach((panel) => {
+        panel.classList.remove("active");
+        if (panel.id === targetId) panel.classList.add("active");
+      });
+    });
+  });
+}
+
+// --- [기능 7] 통계 및 구역 데이터 렌더링 ---
 function renderStatistics(users) {
   const statsContainer = document.getElementById("statsContainer");
   statsContainer.innerHTML = `
