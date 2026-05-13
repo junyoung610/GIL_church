@@ -28,9 +28,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (postList) {
     const boardTitle = document.getElementById("boardTitle");
     if (boardTitle) {
-      if (boardType === "bulletin") boardTitle.innerText = "온라인 주보";
-      else if (boardType === "sermon") boardTitle.innerText = "주일설교 목록";
-      else boardTitle.innerText = "교회 공지사항";
+      if (boardType === "bulletin") {
+        boardTitle.innerText = "온라인 주보";
+        document.title = "온라인 주보 - 길교회"; // 탭 타이틀 변경
+      } else if (boardType === "sermon") {
+        boardTitle.innerText = "주일설교 목록";
+        document.title = "주일설교 - 길교회"; // 탭 타이틀 변경
+      } else {
+        boardTitle.innerText = "교회 공지사항";
+        document.title = "교회소식 - 길교회"; // 탭 타이틀 변경
+      }
     }
 
     if (currentUser && currentUser.role === "admin") {
@@ -73,7 +80,9 @@ async function loadPosts(type) {
     const row = document.createElement("tr");
     row.innerHTML = `
             <td>${index--}</td>
-            <td class="title"><a href="board_detail.html?id=${doc.id}">${post.title}${post.fileUrl ? " 📎" : ""}</a></td>
+            <td class="title"><a href="board_detail.html?id=${doc.id}">${post.title}${
+      post.fileUrl ? " 📎" : ""
+    }</a></td>
             <td>${post.author}</td>
             <td>${post.date.split("T")[0]}</td>
             <td>${post.views || 0}</td>
@@ -158,7 +167,8 @@ async function loadPostDetail(postId, currentUser) {
   } else if (post.fileUrl && post.fileType?.startsWith("image/")) {
     const imgArea = document.getElementById("imageInsideCard");
     imgArea.style.display = "block";
-    document.getElementById("imageDisplay").innerHTML =
-      `<img src="${post.fileUrl}" style="max-width:100%; border-radius:8px;">`;
+    document.getElementById(
+      "imageDisplay"
+    ).innerHTML = `<img src="${post.fileUrl}" style="max-width:100%; border-radius:8px;">`;
   }
 }
